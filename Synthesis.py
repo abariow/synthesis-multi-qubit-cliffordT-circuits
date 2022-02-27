@@ -89,7 +89,7 @@ def reduceColumn(U, W, col):
     reduceColumn(U, W, col)
 
 
-def decompNqbitMatrix(U): # decompMatrix
+def decomposMatrix(U): # decompMatrix
 
     N = U.shape[1]
     Components = []
@@ -105,7 +105,7 @@ def decompNqbitMatrix(U): # decompMatrix
     return Components[::-1]
 
 
-def synt2LevelMatrix(HC): # twoLevelMatrixToCircuit
+def decompos2LMatrix(HC): # twoLevelMatrixToCircuit
 
     nq = int(np.log2(HC.N))
 
@@ -328,7 +328,7 @@ def MCT(nq, k=1):
     return mct
 
 
-def MCXX(nq):
+def MCXp(nq):
 
     if nq <= 1:
         raise ValueError("err")
@@ -353,7 +353,7 @@ def MCXX(nq):
     return mcx
 
 
-def MLC(mlc):
+def decomposMCGate(mlc):
 
     nq = mlc.q_array.size
 
@@ -375,7 +375,7 @@ def MLC(mlc):
 
     elif mlc.name == 'X':
         nqp.append(nqp.pop(mlc.i + 1))
-        result += rearrangeQ(MCXX(nq), cqp, nqp)
+        result += rearrangeQ(MCXp(nq), cqp, nqp)
 
     for i in neg_ctrls:
         result += [MX.LowLevelComponent('x', [i])]
@@ -383,7 +383,7 @@ def MLC(mlc):
     return result
 
 
-def decompU(U):
+def decompos(U):
 
     N = U.shape[1]
     nq = int(np.log2(N))
@@ -394,10 +394,10 @@ def decompU(U):
     if not utils.checkUnitarity(U):
         raise ValueError("Input matrix is not unitary")
 
-    HLCs = decompNqbitMatrix(U)
+    HLCs = decomposMatrix(U)
     HLCs1 = deepcopy(HLCs)
-    MLCs = sum(list(map(synt2LevelMatrix, HLCs)), [])
-    LLCs = sum(list(map(MLC, MLCs)), [])
+    MLCs = sum(list(map(decompos2LMatrix, HLCs)), [])
+    LLCs = sum(list(map(decomposMCGate, MLCs)), [])
 
     return LLCs, MLCs, HLCs, HLCs1
 
@@ -480,7 +480,7 @@ def syntCliffordTCircuit(U):
 
     N = U.shape[1]
     nq = int(np.log2(N))
-    LLCs, MLCs, HLCs, HLCs1 = decompU(U)
+    LLCs, MLCs, HLCs, HLCs1 = decompos(U)
     cliffordTCiruit = compose_ll(LLCs, nq + 1)
     mcgCircuit = compose_ml(MLCs)
 

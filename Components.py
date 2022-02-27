@@ -147,10 +147,6 @@ class LowLevelComponent:
 
 if __name__ == "__main__":
 
-    LLC = LowLevelComponent('cx', [0,1])
-    m = LLC.to_matrix(4)
-    print(LLC.name)
-    print(LLC.idx)
-    for i in range(16):
-        for j in range(16):
-            print(m[i,j])
+    MLC1 = MidLevelComponent('X', [1,0,1,-1],1)
+    MLC2 = MidLevelComponent('X', [1,0,1,-1],1)
+    print(MLC1 == MLC2)
