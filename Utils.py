@@ -11,8 +11,17 @@ from qiskit import Aer,execute
 from qiskit_textbook.tools import array_to_latex
 
 
-
 def makeDenomsCommon(U):
+
+    """
+        This function makes the denominators of the entries in U, which are
+        Dw-numbers, the same.
+
+        Args:
+            U (numpy matrix): 2^n * 2^n Unitary matrix of D-omega objects
+
+        Returns a numpy.matrix object
+    """
 
     shape = U.shape
     u = U.A.flatten()
@@ -25,6 +34,15 @@ def makeDenomsCommon(U):
     return np.matrix(u.reshape(shape))
 
 def checkUnitarity(U):
+
+    """
+        This function checks whether matrix U is unitary or not.
+
+        Args:
+            U (numpy matrix): 2^n * 2^n Unitary matrix of D-omega objects
+
+        Returns True if U is unitary.
+    """
 
     N = U.shape[0]
     I = MX.getIdentityMatrix(N)
@@ -39,6 +57,20 @@ def matrix_to_latex(U):
 
 def generateRandomU(nq, nc=0):
 
+    """
+        This function randomly generates a 2^n * 2^n unitary matrix of D-omega objects
+        To generate the matrix, the function first randomly generates some 2-level
+        matrices of type H,X,T then multiply them togther. ُThe more 2-level
+        matrices is generated, the more complex the entries of matrix are.
+
+        Args:
+            nq (int): to determine size of matrix (2^nq * 2^nq)
+            nc (int): number of 2-level matrices generated (to determine complexity of entries in matrix)
+
+        Returns:
+            U (numpy matrix): 2^n * 2^n Unitary matrix of D-omega objects
+    """
+
     if nc == 0:
         nc = random.randint(1, 100)
 
@@ -49,23 +81,27 @@ def generateRandomU(nq, nc=0):
 
     RU = MX.getIdentityMatrix(N)
 
+    # Generate nc random 2-level matrices and mutilpy them all togehter
     for c in range(nc):
         ij = random.sample(range(N), 2)
         ij.sort()
         i, j = ij
         gate = random.choice(list(gates.keys()))
-        power = random.randint(0, 7)
+        e = random.randint(0, 7)
 
         if gate == 'T' or gate == 'H':
+            # Generate a random (T[i,j] ^ k) * H[i,j]
             HLC1 = MX.HighLevelComponent('H', 1, N, i, j)
-            HLC2 = MX.HighLevelComponent('T', power, N, i, j)
+            HLC2 = MX.HighLevelComponent('T', e, N, i, j)
             RU = HLC2.powered_matrix() @ HLC1.powered_matrix() @ RU
 
         elif gate == 'w':
-            HLC = MX.HighLevelComponent(gate, power, N, i, j)
+            # Generate random 1-level marix of type omega (w[j] ^ k)
+            HLC = MX.HighLevelComponent(gate, e, N, i, j)
             RU = HLC.powered_matrix() @ RU
 
         elif gate == 'X':
+            # Generate random 2-level marix of type X
             HLC = MX.HighLevelComponent(gate, 1, N, i, j)
             RU = HLC.powered_matrix() @ RU
 
@@ -73,6 +109,17 @@ def generateRandomU(nq, nc=0):
 
 
 def assess(U, circ):
+
+    """
+        This function checks if the circuit is synthesized correctly and
+        represents exactly the unitary operator(U)
+
+        Args:
+            U (numpy matrix): 2^n * 2^n Unitary matrix of D-omega objects (the input)
+            circ (qiskit.QunatumCircuit): the synthesized circuit (the output)
+
+        Returns True if the circuit is synthesized correctly
+    """
 
     N = U.shape[0]
     nq = int(np.log2(N))
@@ -85,12 +132,14 @@ def assess(U, circ):
 
     back = Aer.get_backend('unitary_simulator')
     result = execute(circ1, back).result()
-    CU = result.get_unitary(circ1)[:N,:N]
+    CU = result.get_unitary(circ1)[:N,:N] # get unitary matrix of synthesized circuit
+
     roundC = lambda C : round(C.real,10) + round(C.imag,10) * 1j
     U = np.vectorize(Dw.num)(U)
     U = np.vectorize(roundC)(U)
     CU = np.vectorize(roundC)(CU)
 
+    # compare U to unitary matrix of synthesized circuit
     return (U == CU).all(),U,CU
 
 def assess1(U, components):
