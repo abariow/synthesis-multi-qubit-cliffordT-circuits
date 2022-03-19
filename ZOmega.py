@@ -167,8 +167,8 @@ class Zw:
     def reduce(self):
 
         """
-            This method divides self by sqrt(2) unitl it's divisible(until
-            there's a sqrt(2) factor in self). In other words, this method removes
+            This method divides self by sqrt(2) as long as it's divisible(until
+            there's no sqrt(2) factor in self). In other words, this method removes
             sqrt(2) factors in the Z-omega object.
             This method also alculates how many sqrt(2) factors there are in the object
             In other words, if self = (sqrt(2) ^ k) * other(=another Z-omega
