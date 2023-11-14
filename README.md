@@ -1,6 +1,6 @@
 # synthesis-multiqubit-clifford-T-circuits
 
-This's my first first adventure in quantum computing world.
+This's my first adventure in quantum computing world.
 I manged to implement an algorithm that generates a qunatum circuit based on a given matrix,
 The algorithm is proposed in the paper "Exact synthesis of multiqubit Clifford+T circuits" cited as: https://arxiv.org/pdf/1212.0506.pdf.
 I used the Qiskit library to implement the algorithm.
