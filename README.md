@@ -1,4 +1,4 @@
-# synthesis-multiqubit-clifford-T-circuits
+# Synthesis of multiqubit Clifford+T circuits
 
 This's my first adventure in quantum computing world.
 I manged to implement an algorithm that generates a qunatum circuit based on a given matrix;
